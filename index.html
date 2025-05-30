@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pilot Balloon Wind Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Pilot Balloon Wind Calculator</h1>
+
+    <form onsubmit="calculate(event)">
+      <label>Observation Number (N):
+        <input type="number" id="n" required min="1" />
+      </label>
+
+      <label>Elevation Angle (degrees):
+        <input type="number" id="elevation" required min="0" max="90" />
+      </label>
+
+      <label>Azimuth Angle (degrees):
+        <input type="number" id="azimuth" required min="0" max="360" />
+      </label>
+
+      <label>Ascent Rate (feet/min):
+        <input type="number" id="rate" value="250" required min="1" />
+      </label>
+
+      <button type="submit">Calculate</button>
+    </form>
+
+    <div id="results" class="results"></div>
+  </div>
+
+  <script>
+    function radians(deg) {
+      return deg * Math.PI / 180;
+    }
+
+    function calculate(event) {
+      event.preventDefault();
+
+      const n = parseFloat(document.getElementById("n").value);
+      const elevation = parseFloat(document.getElementById("elevation").value);
+      const azimuth = parseFloat(document.getElementById("azimuth").value);
+      const rate = parseFloat(document.getElementById("rate").value);
+
+      const zn = ((2 * n) - 1) * rate / Math.tan(radians(elevation));
+      const xn = zn * Math.sin(radians(azimuth));
+      const yn = zn * Math.cos(radians(azimuth));
+
+      document.getElementById("results").innerHTML = `
+        <h2>Results</h2>
+        <p><strong>Zn</strong> (slant range): ${zn.toFixed(2)} ft</p>
+        <p><strong>Xn</strong> (east-west): ${xn.toFixed(2)} ft</p>
+        <p><strong>Yn</strong> (north-south): ${yn.toFixed(2)} ft</p>
+      `;
+    }
+  </script>
+</body>
+</html>
