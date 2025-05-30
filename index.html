@@ -18,7 +18,7 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h1, h2 {
+    h1 {
       text-align: center;
     }
     form {
@@ -114,34 +114,26 @@
       const el1 = parseFloat(document.getElementById("el1").value);
       const el2 = parseFloat(document.getElementById("el2").value);
 
-      // Constants
       const rate = 250.00;
 
-      // Heights
-      const d11 = ((2 * n1 - 1));
-      const d21 = ((2 * n2 - 1));
-      const d12 = (cotangent(el1));
-      const d22 = (cotangent(el2));
-      const d13 = (d11 * rate * d12)
-      const d23 = (d21 * rate * d22)
+      const d11 = 2 * n1 - 1;
+      const d21 = 2 * n2 - 1;
+      const d12 = cotangent(el1);
+      const d22 = cotangent(el2);
+      const d13 = d11 * rate * d12;
+      const d23 = d21 * rate * d22;
 
-      // ΔY = Y1 - Y2 = d1*cos(az1) - d2*cos(az2)
       const y1 = d13 * Math.cos(radians(az1));
       const y2 = d23 * Math.cos(radians(az2));
       const deltaY = y1 - y2;
 
-      // ΔX = X1 - X2 = d1*sin(az1) - d2*sin(az2)
       const x1 = d13 * Math.sin(radians(az1));
       const x2 = d23 * Math.sin(radians(az2));
       const deltaX = x1 - x2;
 
-      // Speed in knots
       const speed = Math.sqrt(deltaX ** 2 + deltaY ** 2) * 2;
-
-      // Direction (in degrees)
       const alpha = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
 
-      // True wind direction
       let bearing;
       if (deltaY > 0 && deltaX < 0) {
         bearing = 270 + Math.abs(alpha);
@@ -152,28 +144,26 @@
       } else if (deltaY < 0 && deltaX < 0) {
         bearing = 270 - Math.abs(alpha);
       } else {
-        bearing = alpha; // fallback, e.g. when deltaX == 0
+        bearing = alpha;
       }
-      const direction = ((bearing + 360) % 360).toFixed(2); // normalized 0–360°
 
-      // Step-by-step output
+      const direction = ((bearing + 360) % 360).toFixed(2);
+
       document.getElementById("results").innerHTML = `
         <div class="section"><strong>dn</strong><br>
         d₁ = (2×${n1} - 1) × ${rate} × cot(${el1})<br>
-        d₁ = ${d11} × ${rate} × ${d12}<br>
+        d₁ = ${d11} × ${rate} × ${d12.toFixed(8)}<br>
         d₁ = ${d13.toFixed(8)}<br><br>
         d₂ = (2×${n2} - 1) × ${rate} × cot(${el2})<br>
-        d₂ = ${d21} × ${rate} × ${d22}<br>
+        d₂ = ${d21} × ${rate} × ${d22.toFixed(8)}<br>
         d₂ = ${d23.toFixed(8)}</div>
 
         <div class="section"><strong>dy dx</strong><br>
-        ΔY = Y₁ - Y₂<br>
-        ΔY = (d₁ × cos(A₁)) - (d₂ × cos(A₂))<br>
-        ΔY = ${d1.toFixed(8)} × cos(${az1})) - (${d2.toFixed(8)} × cos(${az2})<br>
+        ΔY = Y₁ - Y₂ = (d₁ × cos(A₁)) - (d₂ × cos(A₂))<br>
+        ΔY = ${d13.toFixed(8)} × cos(${az1}) - ${d23.toFixed(8)} × cos(${az2})<br>
         ΔY = ${deltaY.toFixed(8)}<br><br>
-        ΔX = X₁ - X₂<br><br>
-        ΔX = (d₁ × sin(A₁)) - (d₂ × sin(A₂))<br>
-        ΔX = ${d1.toFixed(8)} × sin(${az1})) - (${d2.toFixed(8)} × sin(${az2})<br>
+        ΔX = X₁ - X₂ = (d₁ × sin(A₁)) - (d₂ × sin(A₂))<br>
+        ΔX = ${d13.toFixed(8)} × sin(${az1}) - ${d23.toFixed(8)} × sin(${az2})<br>
         ΔX = ${deltaX.toFixed(8)}</div>
 
         <div class="section"><strong>ff</strong><br>
@@ -181,7 +171,7 @@
 
         <div class="section"><strong>ddd</strong><br>
         α = arctan(ΔY / ΔX) = ${alpha.toFixed(6)}°<br>
-        Arah (ddd) = ${bearing.toFixed(2)}°</div>
+        Arah (ddd) = ${direction}°</div>
       `;
     }
   </script>
