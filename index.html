@@ -2,30 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Pilot Balloon Wind Calculator</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Perhitungan Pibal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 2rem;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.2rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.4rem;
+      box-sizing: border-box;
+    }
+    button {
+      grid-column: span 2;
+      padding: 0.8rem;
+      background-color: #007BFF;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .results {
+      margin-top: 2rem;
+      background: #eef;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+    }
+    .section {
+      margin-bottom: 1rem;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Pilot Balloon Wind Calculator</h1>
-
     <form onsubmit="calculate(event)">
-      <label>Observation Number (N):
-        <input type="number" id="n" required min="1" />
-      </label>
-
-      <label>Elevation Angle (degrees):
-        <input type="number" id="elevation" required min="0" max="90" />
-      </label>
-
-      <label>Azimuth Angle (degrees):
-        <input type="number" id="azimuth" required min="0" max="360" />
-      </label>
-
-      <label>Ascent Rate (feet/min):
-        <input type="number" id="rate" value="250" required min="1" />
-      </label>
-
+      <div>
+        <label>Observation 1 – N₁</label>
+        <input type="number" id="n1" required min="1">
+      </div>
+      <div>
+        <label>Observation 2 – N₂</label>
+        <input type="number" id="n2" required min="1">
+      </div>
+      <div>
+        <label>Azimuth 1 (°)</label>
+        <input type="number" id="az1" required>
+      </div>
+      <div>
+        <label>Azimuth 2 (°)</label>
+        <input type="number" id="az2" required>
+      </div>
+      <div>
+        <label>Elevation 1 (°)</label>
+        <input type="number" id="el1" required>
+      </div>
+      <div>
+        <label>Elevation 2 (°)</label>
+        <input type="number" id="el2" required>
+      </div>
+      <div>
+        <label>Ascent Rate (ft/min)</label>
+        <input type="number" id="rate" value="250" required>
+      </div>
       <button type="submit">Calculate</button>
     </form>
 
@@ -37,23 +104,63 @@
       return deg * Math.PI / 180;
     }
 
+    function cotangent(deg) {
+      return 1 / Math.tan(radians(deg));
+    }
+
     function calculate(event) {
       event.preventDefault();
 
-      const n = parseFloat(document.getElementById("n").value);
-      const elevation = parseFloat(document.getElementById("elevation").value);
-      const azimuth = parseFloat(document.getElementById("azimuth").value);
+      const n1 = parseFloat(document.getElementById("n1").value);
+      const n2 = parseFloat(document.getElementById("n2").value);
+      const az1 = parseFloat(document.getElementById("az1").value);
+      const az2 = parseFloat(document.getElementById("az2").value);
+      const el1 = parseFloat(document.getElementById("el1").value);
+      const el2 = parseFloat(document.getElementById("el2").value);
       const rate = parseFloat(document.getElementById("rate").value);
 
-      const zn = ((2 * n) - 1) * rate / Math.tan(radians(elevation));
-      const xn = zn * Math.sin(radians(azimuth));
-      const yn = zn * Math.cos(radians(azimuth));
+      // Constants
+      const K = 202.67;
 
+      // Heights
+      const d1 = ((2 * n1 - 1) * rate * cotangent(el1)) / K;
+      const d2 = ((2 * n2 - 1) * rate * cotangent(el2)) / K;
+
+      // ΔY = Y1 - Y2 = d1*cos(az1) - d2*cos(az2)
+      const y1 = d1 * Math.cos(radians(az1));
+      const y2 = d2 * Math.cos(radians(az2));
+      const deltaY = y1 - y2;
+
+      // ΔX = X1 - X2 = d1*sin(az1) - d2*sin(az2)
+      const x1 = d1 * Math.sin(radians(az1));
+      const x2 = d2 * Math.sin(radians(az2));
+      const deltaX = x1 - x2;
+
+      // Speed in knots
+      const speed = Math.sqrt(deltaX ** 2 + deltaY ** 2) * 2;
+
+      // Direction (in degrees)
+      const alpha = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+
+      // True wind direction
+      const direction = (alpha < 0 ? 360 + alpha : alpha).toFixed(2);
+
+      // Step-by-step output
       document.getElementById("results").innerHTML = `
-        <h2>Results</h2>
-        <p><strong>Zn</strong> (slant range): ${zn.toFixed(2)} ft</p>
-        <p><strong>Xn</strong> (east-west): ${xn.toFixed(2)} ft</p>
-        <p><strong>Yn</strong> (north-south): ${yn.toFixed(2)} ft</p>
+        <div class="section"><strong>Step 1: Height Calculations</strong><br>
+        d₁ = ((2×${n1} - 1) × ${rate} × cot(${el1})) ÷ ${K} = ${d1.toFixed(8)} ft<br>
+        d₂ = ((2×${n2} - 1) × ${rate} × cot(${el2})) ÷ ${K} = ${d2.toFixed(8)} ft</div>
+
+        <div class="section"><strong>Step 2: Displacements</strong><br>
+        ΔY = (${d1.toFixed(8)} × cos(${az1})) - (${d2.toFixed(8)} × cos(${az2})) = ${deltaY.toFixed(8)}<br>
+        ΔX = (${d1.toFixed(8)} × sin(${az1})) - (${d2.toFixed(8)} × sin(${az2})) = ${deltaX.toFixed(8)}</div>
+
+        <div class="section"><strong>Step 3: Speed</strong><br>
+        ff = √(ΔX² + ΔY²) × 2 = ${speed.toFixed(8)} knots</div>
+
+        <div class="section"><strong>Step 4: Direction</strong><br>
+        α = arctan(ΔY / ΔX) = ${alpha.toFixed(6)}°<br>
+        Arah = ${direction}°</div>
       `;
     }
   </script>
