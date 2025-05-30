@@ -63,37 +63,33 @@
 </head>
 <body>
   <div class="container">
-    <h1>Pilot Balloon Wind Calculator</h1>
+    <h1>Perhitungan Pibal</h1>
     <form onsubmit="calculate(event)">
       <div>
-        <label>Observation 1 – N₁</label>
+        <label>N₁</label>
         <input type="number" id="n1" required min="1">
       </div>
       <div>
-        <label>Observation 2 – N₂</label>
+        <label>N₂</label>
         <input type="number" id="n2" required min="1">
       </div>
       <div>
         <label>Azimuth 1 (°)</label>
-        <input type="number" id="az1" required>
+        <input type="number" id="az1" step="0.1" required>
       </div>
       <div>
         <label>Azimuth 2 (°)</label>
-        <input type="number" id="az2" required>
+        <input type="number" id="az2" step="0.1" required>
       </div>
       <div>
-        <label>Elevation 1 (°)</label>
-        <input type="number" id="el1" required>
+        <label>Elevasi 1 (°)</label>
+        <input type="number" id="el1" step="0.1" required>
       </div>
       <div>
-        <label>Elevation 2 (°)</label>
-        <input type="number" id="el2" required>
+        <label>Elevasi 2 (°)</label>
+        <input type="number" id="el2" step="0.1" required>
       </div>
-      <div>
-        <label>Ascent Rate (ft/min)</label>
-        <input type="number" id="rate" value="250" required>
-      </div>
-      <button type="submit">Calculate</button>
+      <button type="submit">Omke Gas</button>
     </form>
 
     <div id="results" class="results"></div>
@@ -120,11 +116,15 @@
       const rate = parseFloat(document.getElementById("rate").value);
 
       // Constants
-      const K = 202.67;
+      const rate = 250.00;
 
       // Heights
-      const d1 = ((2 * n1 - 1) * rate * cotangent(el1)) / K;
-      const d2 = ((2 * n2 - 1) * rate * cotangent(el2)) / K;
+      const d11 = ((2 * n1 - 1));
+      const d21 = ((2 * n2 - 1));
+      const d12 = (cotangent(el1));
+      const d22 = (cotangent(el2));
+      const d13 = (d11 * rate * d12)
+      const d13 = (d11 * rate * d12)
 
       // ΔY = Y1 - Y2 = d1*cos(az1) - d2*cos(az2)
       const y1 = d1 * Math.cos(radians(az1));
@@ -143,24 +143,46 @@
       const alpha = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
 
       // True wind direction
-      const direction = (alpha < 0 ? 360 + alpha : alpha).toFixed(2);
+      let bearing;
+      if (deltaY > 0 && deltaX < 0) {
+        bearing = 270 + Math.abs(alpha);
+      } else if (deltaY > 0 && deltaX > 0) {
+        bearing = 90 - Math.abs(alpha);
+      } else if (deltaY < 0 && deltaX > 0) {
+        bearing = 90 + Math.abs(alpha);
+      } else if (deltaY < 0 && deltaX < 0) {
+        bearing = 270 - Math.abs(alpha);
+      } else {
+        bearing = alpha; // fallback, e.g. when deltaX == 0
+      }
+      const direction = ((bearing + 360) % 360).toFixed(2); // normalized 0–360°
 
       // Step-by-step output
       document.getElementById("results").innerHTML = `
-        <div class="section"><strong>Step 1: Height Calculations</strong><br>
-        d₁ = ((2×${n1} - 1) × ${rate} × cot(${el1})) ÷ ${K} = ${d1.toFixed(8)} ft<br>
-        d₂ = ((2×${n2} - 1) × ${rate} × cot(${el2})) ÷ ${K} = ${d2.toFixed(8)} ft</div>
+        <div class="section"><strong>dn</strong><br>
+        d₁ = (2×${n1} - 1) × ${rate} × cot(${el1})<br>
+        d₁ = ${d11} × ${rate} × ${d12}<br>
+        d₁ = ${d13.toFixed(8)}<br><br>
+        d₂ = (2×${n2} - 1) × ${rate} × cot(${el2})<br>
+        d₂ = ${d21} × ${rate} × ${d22}<br>
+        d₂ = ${d23.toFixed(8)}</div>
 
-        <div class="section"><strong>Step 2: Displacements</strong><br>
-        ΔY = (${d1.toFixed(8)} × cos(${az1})) - (${d2.toFixed(8)} × cos(${az2})) = ${deltaY.toFixed(8)}<br>
-        ΔX = (${d1.toFixed(8)} × sin(${az1})) - (${d2.toFixed(8)} × sin(${az2})) = ${deltaX.toFixed(8)}</div>
+        <div class="section"><strong>dy dx</strong><br>
+        ΔY = Y₁ - Y₂<br>
+        ΔY = (d₁ × cos(A₁)) - (d₂ × cos(A₂))<br>
+        ΔY = ${d1.toFixed(8)} × cos(${az1})) - (${d2.toFixed(8)} × cos(${az2})<br>
+        ΔY = ${deltaY.toFixed(8)}<br><br>
+        ΔX = X₁ - X₂<br><br>
+        ΔY = (d₁ × sin(A₁)) - (d₂ × sin(A₂))<br>
+        ΔY = ${d1.toFixed(8)} × sin(${az1})) - (${d2.toFixed(8)} × sin(${az2})<br>
+        ΔY = ${deltaX.toFixed(8)}</div>
 
-        <div class="section"><strong>Step 3: Speed</strong><br>
+        <div class="section"><strong>ff</strong><br>
         ff = √(ΔX² + ΔY²) × 2 = ${speed.toFixed(8)} knots</div>
 
-        <div class="section"><strong>Step 4: Direction</strong><br>
+        <div class="section"><strong>ddd</strong><br>
         α = arctan(ΔY / ΔX) = ${alpha.toFixed(6)}°<br>
-        Arah = ${direction}°</div>
+        Arah (ddd) = ${bearing.toFixed(2)}°</div>
       `;
     }
   </script>
