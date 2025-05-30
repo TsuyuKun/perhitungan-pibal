@@ -133,7 +133,7 @@
       const deltaX = x1 - x2;
 
       const speed = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 3.3 / 60 * 2;
-      const alpha = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+      const alpha = Math.abs(Math.atan(deltaY / deltaX) * 180 / Math.PI);
 
       let bearing;
       if (deltaY > 0 && deltaX < 0) {
