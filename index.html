@@ -121,8 +121,8 @@
       const d21 = 2 * n2 - 1;
       const d12 = cotangent(el1);
       const d22 = cotangent(el2);
-      const d13 = d11 * rate * d12 / k;
-      const d23 = d21 * rate * d22 / k;
+      const d13 = d11 * rate * d12;
+      const d23 = d21 * rate * d22;
 
       const y1 = d13 * Math.cos(radians(az1));
       const y2 = d23 * Math.cos(radians(az2));
@@ -132,7 +132,7 @@
       const x2 = d23 * Math.sin(radians(az2));
       const deltaX = x1 - x2;
 
-      const speed = Math.sqrt(deltaX ** 2 + deltaY ** 2) * 2;
+      const speed = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 3.3 / 60 * 2;
       const alpha = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
 
       let bearing;
@@ -152,12 +152,12 @@
 
       document.getElementById("results").innerHTML = `
         <div class="section"><strong>dn</strong><br>
-        d₁ = ((2×${n1} - 1) × ${rate} × cot(${el1})) / ${k}<br>
-        d₁ = (${d11} × ${rate} × ${d12.toFixed(8)}) / ${k}<br>
-        d₁ = (${d13.toFixed(8)})<br><br>
-        d₂ = ((2×${n2} - 1) × ${rate} × cot(${el2})) / ${k}<br>
-        d₂ = (${d21} × ${rate} × ${d22.toFixed(8)}) / ${k}<br>
-        d₂ = (${d23.toFixed(8)})</div>
+        d₁ = (2×${n1} - 1) × ${rate} × cot(${el1})<br>
+        d₁ = ${d11} × ${rate} × ${d12.toFixed(8)}<br>
+        d₁ = ${d13.toFixed(8)}<br><br>
+        d₂ = (2×${n2} - 1) × ${rate} × cot(${el2})<br>
+        d₂ = ${d21} × ${rate} × ${d22.toFixed(8)}<br>
+        d₂ = ${d23.toFixed(8)}</div>
 
         <div class="section"><strong>dy dx</strong><br>
         ΔY = Y₁ - Y₂ = (d₁ × cos(A₁)) - (d₂ × cos(A₂))<br>
@@ -168,7 +168,7 @@
         ΔX = ${deltaX.toFixed(8)}</div>
 
         <div class="section"><strong>ff</strong><br>
-        ff = √(ΔX² + ΔY²) × 2 = ${speed.toFixed(8)} knots</div>
+        ff = √(ΔX² + ΔY²) / 3.3 / 60 × 2 = ${speed.toFixed(8)} knots</div>
 
         <div class="section"><strong>ddd</strong><br>
         α = arctan(ΔY / ΔX) = ${alpha.toFixed(6)}°<br>
