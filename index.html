@@ -113,7 +113,6 @@
       const az2 = parseFloat(document.getElementById("az2").value);
       const el1 = parseFloat(document.getElementById("el1").value);
       const el2 = parseFloat(document.getElementById("el2").value);
-      const rate = parseFloat(document.getElementById("rate").value);
 
       // Constants
       const rate = 250.00;
@@ -124,16 +123,16 @@
       const d12 = (cotangent(el1));
       const d22 = (cotangent(el2));
       const d13 = (d11 * rate * d12)
-      const d13 = (d11 * rate * d12)
+      const d23 = (d21 * rate * d22)
 
       // ΔY = Y1 - Y2 = d1*cos(az1) - d2*cos(az2)
-      const y1 = d1 * Math.cos(radians(az1));
-      const y2 = d2 * Math.cos(radians(az2));
+      const y1 = d13 * Math.cos(radians(az1));
+      const y2 = d23 * Math.cos(radians(az2));
       const deltaY = y1 - y2;
 
       // ΔX = X1 - X2 = d1*sin(az1) - d2*sin(az2)
-      const x1 = d1 * Math.sin(radians(az1));
-      const x2 = d2 * Math.sin(radians(az2));
+      const x1 = d13 * Math.sin(radians(az1));
+      const x2 = d23 * Math.sin(radians(az2));
       const deltaX = x1 - x2;
 
       // Speed in knots
@@ -173,9 +172,9 @@
         ΔY = ${d1.toFixed(8)} × cos(${az1})) - (${d2.toFixed(8)} × cos(${az2})<br>
         ΔY = ${deltaY.toFixed(8)}<br><br>
         ΔX = X₁ - X₂<br><br>
-        ΔY = (d₁ × sin(A₁)) - (d₂ × sin(A₂))<br>
-        ΔY = ${d1.toFixed(8)} × sin(${az1})) - (${d2.toFixed(8)} × sin(${az2})<br>
-        ΔY = ${deltaX.toFixed(8)}</div>
+        ΔX = (d₁ × sin(A₁)) - (d₂ × sin(A₂))<br>
+        ΔX = ${d1.toFixed(8)} × sin(${az1})) - (${d2.toFixed(8)} × sin(${az2})<br>
+        ΔX = ${deltaX.toFixed(8)}</div>
 
         <div class="section"><strong>ff</strong><br>
         ff = √(ΔX² + ΔY²) × 2 = ${speed.toFixed(8)} knots</div>
