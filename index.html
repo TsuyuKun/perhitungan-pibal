@@ -152,6 +152,7 @@
 
       document.getElementById("results").innerHTML = `
         <div class="section"><strong>dn</strong><br>
+        dn = (2 × n - 1) × 250 × cot(elevasi)<br>
         d₁ = (2×${n1} - 1) × ${rate} × cot(${el1})<br>
         d₁ = ${d11} × ${rate} × ${d12.toFixed(8)}<br>
         d₁ = ${d13.toFixed(8)}<br><br>
@@ -168,7 +169,10 @@
         ΔX = ${deltaX.toFixed(8)}</div>
 
         <div class="section"><strong>ff</strong><br>
-        ff = √(ΔX² + ΔY²) / 3.3 / 60 × 2 = ${speed.toFixed(8)} knots</div>
+        ff = √(ΔX² + ΔY²) / 3.3 / 60 × 2<br>
+        ff = √(${deltaX.toFixed(8)}² + ${deltaY.toFixed(8)²}) / 3.3 / 60 × 2<br>
+        ff = √(${deltaX.toFixed(8) ** 2} + ${deltaY.toFixed(8) ** 2}) / 3.3 / 60 × 2<br>
+        ff =  ${speed.toFixed(8)} knots</div>
 
         <div class="section"><strong>ddd</strong><br>
         α = arctan(ΔY / ΔX) = ${alpha.toFixed(6)}°<br>
